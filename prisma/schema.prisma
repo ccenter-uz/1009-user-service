@@ -1,0 +1,40 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Category {
+  id                   Int                    @id @default(autoincrement())
+  staffNumber          Int                    @map("staff_number") @db.Integer
+  status               Int                    @default(1) @db.SmallInt()
+  createdAt            DateTime               @default(now()) @map("created_at") @db.Timestamp
+  updatedAt            DateTime?              @updatedAt @map("updated_at")
+  deletedAt            DateTime?              @updatedAt @map("deleted_at")
+  sub_categories       SubCategory[]
+
+  @@map("category")
+}
+
+model SubCategory {
+  id          Int       @id @default(autoincrement())
+  staffNumber Int       @map("staff_number") @db.Integer
+  status      Int       @default(1) @db.SmallInt()
+  categoryId  Int       @map("category_id")
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamp
+  updatedAt   DateTime? @updatedAt @map("updated_at")
+  deletedAt   DateTime? @updatedAt @map("deleted_at")
+
+  category                Category                  @relation(fields: [categoryId], references: [id])
+
+  @@map("sub_category")
+}
