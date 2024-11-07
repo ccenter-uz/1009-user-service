@@ -13,28 +13,62 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Category {
-  id                   Int                    @id @default(autoincrement())
-  staffNumber          Int                    @map("staff_number") @db.Integer
-  status               Int                    @default(1) @db.SmallInt()
-  createdAt            DateTime               @default(now()) @map("created_at") @db.Timestamp
-  updatedAt            DateTime?              @updatedAt @map("updated_at")
-  deletedAt            DateTime?              @updatedAt @map("deleted_at")
-  sub_categories       SubCategory[]
+model Role {
+  id        Int       @id @default(autoincrement())
+  name      String    @db.VarChar(200)
+  status    Int       @default(1) @db.SmallInt()
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamp
+  updatedAt DateTime? @updatedAt @map("updated_at")
+  deletedAt DateTime? @updatedAt @map("deleted_at")
 
-  @@map("category")
+  User           User[]
+  RolePermission RolePermission[]
+
+  @@map("role")
 }
 
-model SubCategory {
+model User {
   id          Int       @id @default(autoincrement())
-  staffNumber Int       @map("staff_number") @db.Integer
+  fullName    String    @map("full_name") @db.VarChar(300)
+  phoneNumber String    @map("phone_number") @db.VarChar(13)
+  password    String
+  roleId      Int       @map("role_id")
+  numericId   Int?      @map("numeric_id") @db.Integer
   status      Int       @default(1) @db.SmallInt()
-  categoryId  Int       @map("category_id")
   createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamp
   updatedAt   DateTime? @updatedAt @map("updated_at")
   deletedAt   DateTime? @updatedAt @map("deleted_at")
 
-  category                Category                  @relation(fields: [categoryId], references: [id])
+  role Role @relation(fields: [roleId], references: [id])
 
-  @@map("sub_category")
+  @@map("user")
+}
+
+model Permission {
+  id          Int       @id @default(autoincrement())
+  name        String    @db.VarChar(150)
+  description String
+  status      Int       @default(1) @db.SmallInt()
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamp
+  updatedAt   DateTime? @updatedAt @map("updated_at")
+  deletedAt   DateTime? @updatedAt @map("deleted_at")
+
+  RolePermission RolePermission[]
+
+  @@map("permission")
+}
+
+model RolePermission {
+  id           Int       @id @default(autoincrement())
+  roleId       Int       @map("role_id")
+  permissionId Int       @map("permission_id")
+  status       Int       @default(1) @db.SmallInt()
+  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamp
+  updatedAt    DateTime? @updatedAt @map("updated_at")
+  deletedAt    DateTime? @updatedAt @map("deleted_at")
+
+  role       Role       @relation(fields: [roleId], references: [id])
+  Permission Permission @relation(fields: [permissionId], references: [id])
+
+  @@map("role_permission")
 }
