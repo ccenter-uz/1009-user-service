@@ -80,7 +80,7 @@ export class RoleService {
     });
 
     if (!role) {
-      throw new NotFoundException('Main Organization is not found');
+      throw new NotFoundException('Role is not found');
     }
 
     return role;

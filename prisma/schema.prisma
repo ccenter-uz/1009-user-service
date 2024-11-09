@@ -30,10 +30,10 @@ model Role {
 model User {
   id          Int       @id @default(autoincrement())
   fullName    String    @map("full_name") @db.VarChar(300)
-  phoneNumber String    @map("phone_number") @db.VarChar(13)
+  phoneNumber String    @unique @map("phone_number") @db.VarChar(13)
   password    String
   roleId      Int       @map("role_id")
-  numericId   Int?      @map("numeric_id") @db.Integer
+  numericId   String?   @unique @map("numeric_id") @db.VarChar(15)
   status      Int       @default(1) @db.SmallInt()
   createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamp
   updatedAt   DateTime? @updatedAt @map("updated_at")

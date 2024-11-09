@@ -9,6 +9,7 @@ import { APP_FILTER } from '@nestjs/core';
 import { AllExceptionFilter } from './common/filter/all-exception.filter';
 import { PrismaModule } from './modules/prisma/prisma.module';
 import { RoleModule } from './modules/role/role.module';
+import { UserModule } from './modules/user/user.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { RoleModule } from './modules/role/role.module';
     }),
     PrismaModule,
     RoleModule,
+    UserModule,
   ],
   controllers: [],
   providers: [
