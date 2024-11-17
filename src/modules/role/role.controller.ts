@@ -12,7 +12,7 @@ import { RoleService } from './role.service';
 
 @Controller('role')
 export class RoleController {
-  constructor(private readonly roleService: RoleService) {}
+  constructor(private readonly roleService: RoleService) { }
 
   @Post()
   @MessagePattern({ cmd: Commands.CREATE })

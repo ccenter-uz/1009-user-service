@@ -47,7 +47,7 @@ model User {
 model Permission {
   id          Int       @id @default(autoincrement())
   name        String    @db.VarChar(150)
-  description String
+  description String?
   status      Int       @default(1) @db.SmallInt()
   createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamp
   updatedAt   DateTime? @updatedAt @map("updated_at")
@@ -62,6 +62,7 @@ model RolePermission {
   id           Int       @id @default(autoincrement())
   roleId       Int       @map("role_id")
   permissionId Int       @map("permission_id")
+  path         String    @map("path")
   status       Int       @default(1) @db.SmallInt()
   createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamp
   updatedAt    DateTime? @updatedAt @map("updated_at")

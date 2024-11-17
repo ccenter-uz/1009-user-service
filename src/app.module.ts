@@ -10,6 +10,8 @@ import { AllExceptionFilter } from './common/filter/all-exception.filter';
 import { PrismaModule } from './modules/prisma/prisma.module';
 import { RoleModule } from './modules/role/role.module';
 import { UserModule } from './modules/user/user.module';
+import { PermissionModule } from './modules/permission/permission.module';
+import { RolePermissionModule } from './modules/role-permission/role-permission.module';
 
 @Module({
   imports: [
@@ -20,6 +22,8 @@ import { UserModule } from './modules/user/user.module';
     PrismaModule,
     RoleModule,
     UserModule,
+    PermissionModule,
+    RolePermissionModule
   ],
   controllers: [],
   providers: [
@@ -29,4 +33,4 @@ import { UserModule } from './modules/user/user.module';
     },
   ],
 })
-export class AppModule {}
+export class AppModule { }
