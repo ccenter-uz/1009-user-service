@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import {
   DefaultStatus,
   DeleteDto,
@@ -11,13 +15,49 @@ import { createPagination } from 'src/common/helper/pagination.helper';
 import { UserCreateDto, UserInterfaces, UserUpdateDto } from 'types/user/user';
 import { RoleService } from '../role/role.service';
 import * as bcrypt from 'bcrypt';
+import { UserLogInDto } from 'types/user/user/dto/log-in-user.dto';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class UserService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly roleService: RoleService
+    private readonly roleService: RoleService,
+    private readonly jwtService: JwtService
   ) {}
+
+  async logIn(data: UserLogInDto): Promise<UserInterfaces.LogInResponse> {
+    const user = await this.prisma.user.findUnique({
+      where: { phoneNumber: data.phoneNumber },
+      include: {
+        role: {
+          include: {
+            RolePermission: {
+              include: { Permission: true },
+            },
+          },
+        },
+      },
+    });
+
+    if (!user || !(await bcrypt.compare(data.password, user.password))) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    // const permissions = user.role.RolePermission.map(
+    //   (rp) => rp.Permission.name
+    // );
+
+    const payload = {
+      userId: user.id,
+      role: user.role.name,
+      // permissions,
+    };
+
+    const accessToken = this.jwtService.sign(payload);
+
+    return { accessToken };
+  }
 
   async create(data: UserCreateDto): Promise<UserInterfaces.Response> {
     const role = await this.roleService.findOne({

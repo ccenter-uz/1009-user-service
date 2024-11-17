@@ -9,10 +9,17 @@ import {
 } from 'types/global';
 import { UserService } from './user.service';
 import { UserCreateDto, UserInterfaces, UserUpdateDto } from 'types/user/user';
+import { UserLogInDto } from 'types/user/user/dto/log-in-user.dto';
 
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
+
+  @Post()
+  @MessagePattern({ cmd: Commands.LOG_IN })
+  logIn(@Payload() data: UserLogInDto): Promise<UserInterfaces.LogInResponse> {
+    return this.userService.logIn(data);
+  }
 
   @Post()
   @MessagePattern({ cmd: Commands.CREATE })
