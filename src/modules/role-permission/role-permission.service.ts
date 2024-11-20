@@ -36,13 +36,15 @@ export class RolePermissionService {
     //   id: data.permissionId,
     // });
 
-    return await this.prisma.rolePermission.create({
+    const rolePermission = await this.prisma.rolePermission.create({
       data: {
         roleId: role.id,
-        permission: PermissionsEnum[data.permission],
+        permission: data.permission,
         path: data.path,
       },
     });
+
+    return rolePermission;
   }
 
   async findAll(

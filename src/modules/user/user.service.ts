@@ -68,7 +68,7 @@ export class UserService {
         phoneNumber: data.phoneNumber, // add formatter
         password: await bcrypt.hash(data.password, 10),
         roleId: role.id,
-        numericId: data.numericId, // data.numericId ? data.numericId : null
+        numericId: data.numericId,
       },
     });
 

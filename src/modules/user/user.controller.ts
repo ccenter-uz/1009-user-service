@@ -15,7 +15,7 @@ import { UserLogInDto } from 'types/user/user/dto/log-in-user.dto';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Post()
+  @Post('log-in')
   @MessagePattern({ cmd: Commands.LOG_IN })
   logIn(@Payload() data: UserLogInDto): Promise<UserInterfaces.LogInResponse> {
     return this.userService.logIn(data);
