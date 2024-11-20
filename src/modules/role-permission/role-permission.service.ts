@@ -5,40 +5,44 @@ import {
   GetOneDto,
   LanguageRequestDto,
   ListQueryDto,
+  PermissionsEnum,
 } from 'types/global';
 import { PrismaService } from '../prisma/prisma.service';
 import { createPagination } from 'src/common/helper/pagination.helper';
 import { RoleService } from '../role/role.service';
-import { PermissionService } from '../permission/permission.service';
-import * as bcrypt from 'bcrypt';
-import { RolePermissionCreateDto, RolePermissionInterfaces, RolePermissionUpdateDto } from 'types/user/role-permission';
+// import { PermissionService } from '../permission/permission.service';
+import {
+  RolePermissionCreateDto,
+  RolePermissionInterfaces,
+  RolePermissionUpdateDto,
+} from 'types/user/role-permission';
 
 @Injectable()
 export class RolePermissionService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly roleService: RoleService,
-    private readonly permissionService: PermissionService
-  ) { }
+    private readonly roleService: RoleService
+    // private readonly permissionService: PermissionService
+  ) {}
 
-  async create(data: RolePermissionCreateDto): Promise<RolePermissionInterfaces.Response> {
+  async create(
+    data: RolePermissionCreateDto
+  ): Promise<RolePermissionInterfaces.Response> {
     const role = await this.roleService.findOne({
       id: data.roleId,
     });
 
-    const permission = await this.permissionService.findOne({
-      id: data.permissionId
-    })
+    // const permission = await this.permissionService.findOne({
+    //   id: data.permissionId,
+    // });
 
-    const rolePermission = await this.prisma.rolePermission.create({
+    return await this.prisma.rolePermission.create({
       data: {
         roleId: role.id,
-        permissionId: permission.id
-
+        permission: PermissionsEnum[data.permission],
+        path: data.path,
       },
     });
-
-    return rolePermission;
   }
 
   async findAll(
@@ -104,16 +108,18 @@ export class RolePermissionService {
     return rolePermission;
   }
 
-  async update(data: RolePermissionUpdateDto): Promise<RolePermissionInterfaces.Response> {
+  async update(
+    data: RolePermissionUpdateDto
+  ): Promise<RolePermissionInterfaces.Response> {
     const rolePermission = await this.findOne({ id: data.id });
 
     if (data.roleId) {
       await this.roleService.findOne({ id: data.roleId });
     }
 
-    if (data.permissionId) {
-      await this.permissionService.findOne({ id: data.roleId });
-    }
+    // if (data.permissionId) {
+    //   await this.permissionService.findOne({ id: data.roleId });
+    // }
 
     return await this.prisma.rolePermission.update({
       where: {
@@ -121,7 +127,7 @@ export class RolePermissionService {
       },
       data: {
         roleId: data.roleId,
-        permissionId: data.permissionId
+        permission: data.permission,
       },
     });
   }

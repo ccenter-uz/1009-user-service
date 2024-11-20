@@ -10,8 +10,9 @@ import { AllExceptionFilter } from './common/filter/all-exception.filter';
 import { PrismaModule } from './modules/prisma/prisma.module';
 import { RoleModule } from './modules/role/role.module';
 import { UserModule } from './modules/user/user.module';
-import { PermissionModule } from './modules/permission/permission.module';
+// import { PermissionModule } from './modules/permission/permission.module';
 import { RolePermissionModule } from './modules/role-permission/role-permission.module';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [
@@ -19,11 +20,15 @@ import { RolePermissionModule } from './modules/role-permission/role-permission.
       isGlobal: true,
       load: [appConfig, dbConfig, rabbitConfig],
     }),
+    JwtModule.register({
+      secret: 'secret-key', // Replace with your secret key
+      signOptions: { expiresIn: '1h' }, // Token expires in 1 hour
+    }),
     PrismaModule,
     RoleModule,
     UserModule,
-    PermissionModule,
-    RolePermissionModule
+    // PermissionModule,
+    RolePermissionModule,
   ],
   controllers: [],
   providers: [
@@ -33,4 +38,4 @@ import { RolePermissionModule } from './modules/role-permission/role-permission.
     },
   ],
 })
-export class AppModule { }
+export class AppModule {}

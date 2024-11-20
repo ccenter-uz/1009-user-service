@@ -44,32 +44,33 @@ model User {
   @@map("user")
 }
 
-model Permission {
-  id          Int       @id @default(autoincrement())
-  name        String    @db.VarChar(150)
-  description String?
-  status      Int       @default(1) @db.SmallInt()
-  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamp
-  updatedAt   DateTime? @updatedAt @map("updated_at")
-  deletedAt   DateTime? @updatedAt @map("deleted_at")
+// model Permission {
+//   id          Int       @id @default(autoincrement())
+//   name        String    @db.VarChar(150)
+//   description String?
+//   status      Int       @default(1) @db.SmallInt()
+//   createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamp
+//   updatedAt   DateTime? @updatedAt @map("updated_at")
+//   deletedAt   DateTime? @updatedAt @map("deleted_at")
 
-  RolePermission RolePermission[]
+//   RolePermission RolePermission[]
 
-  @@map("permission")
-}
+//   @@map("permission")
+// }
 
 model RolePermission {
-  id           Int       @id @default(autoincrement())
-  roleId       Int       @map("role_id")
-  permissionId Int       @map("permission_id")
-  path         String    @map("path")
-  status       Int       @default(1) @db.SmallInt()
-  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamp
-  updatedAt    DateTime? @updatedAt @map("updated_at")
-  deletedAt    DateTime? @updatedAt @map("deleted_at")
+  id         Int       @id @default(autoincrement())
+  roleId     Int       @map("role_id")
+  // permissionId Int       @map("permission_id")
+  permission String
+  path       String    @map("path")
+  status     Int       @default(1) @db.SmallInt()
+  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamp
+  updatedAt  DateTime? @updatedAt @map("updated_at")
+  deletedAt  DateTime? @updatedAt @map("deleted_at")
 
-  role       Role       @relation(fields: [roleId], references: [id])
-  Permission Permission @relation(fields: [permissionId], references: [id])
+  role Role @relation(fields: [roleId], references: [id])
+  // Permission Permission @relation(fields: [permissionId], references: [id])
 
   @@map("role_permission")
 }

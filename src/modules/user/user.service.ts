@@ -32,9 +32,7 @@ export class UserService {
       include: {
         role: {
           include: {
-            RolePermission: {
-              include: { Permission: true },
-            },
+            RolePermission: true,
           },
         },
       },
