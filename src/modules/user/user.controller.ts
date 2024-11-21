@@ -19,7 +19,6 @@ export class UserController {
   @Post('log-in')
   @MessagePattern({ cmd: Commands.LOG_IN })
   logIn(@Payload() data: UserLogInDto): Promise<UserInterfaces.Response> {
-    console.log(data, 'DATA CO');
     return this.userService.logIn(data);
   }
 

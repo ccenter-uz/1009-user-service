@@ -28,8 +28,6 @@ export class UserService {
   ) {}
 
   async logIn(data: UserLogInDto): Promise<UserInterfaces.Response> {
-    console.log(data, 'DATA');
-
     const user = await this.prisma.user.findUnique({
       where: { phoneNumber: data.phoneNumber },
       include: {
