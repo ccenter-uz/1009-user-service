@@ -17,7 +17,7 @@ import { RoleService } from '../role/role.service';
 import * as bcrypt from 'bcrypt';
 import { UserLogInDto } from 'types/user/user/dto/log-in-user.dto';
 import { JwtService } from '@nestjs/jwt';
-import { checkUserPermissionDto } from 'types/user/user/dto/check-permission.dto';
+import { CheckUserPermissionDto } from 'types/user/user/dto/check-permission.dto';
 
 @Injectable()
 export class UserService {
@@ -28,6 +28,8 @@ export class UserService {
   ) {}
 
   async logIn(data: UserLogInDto): Promise<UserInterfaces.Response> {
+    console.log(data, 'DATA');
+
     const user = await this.prisma.user.findUnique({
       where: { phoneNumber: data.phoneNumber },
       include: {
@@ -46,7 +48,7 @@ export class UserService {
     return user;
   }
 
-  async checkPermission(data: checkUserPermissionDto): Promise<boolean> {
+  async checkPermission(data: CheckUserPermissionDto): Promise<boolean> {
     const { userId, roleId, method, path } = data;
 
     const user = await this.prisma.user.findUnique({

@@ -10,7 +10,7 @@ import {
 import { UserService } from './user.service';
 import { UserCreateDto, UserInterfaces, UserUpdateDto } from 'types/user/user';
 import { UserLogInDto } from 'types/user/user/dto/log-in-user.dto';
-import { checkUserPermissionDto } from 'types/user/user/dto/check-permission.dto';
+import { CheckUserPermissionDto } from 'types/user/user/dto/check-permission.dto';
 
 @Controller('user')
 export class UserController {
@@ -19,12 +19,13 @@ export class UserController {
   @Post('log-in')
   @MessagePattern({ cmd: Commands.LOG_IN })
   logIn(@Payload() data: UserLogInDto): Promise<UserInterfaces.Response> {
+    console.log(data, 'DATA CO');
     return this.userService.logIn(data);
   }
 
   @Get('check-permission')
   @MessagePattern({ cmd: Commands.CHECK_PERMISSION })
-  checkPermission(@Payload() data: checkUserPermissionDto): Promise<boolean> {
+  checkPermission(@Payload() data: CheckUserPermissionDto): Promise<boolean> {
     return this.userService.checkPermission(data);
   }
 
