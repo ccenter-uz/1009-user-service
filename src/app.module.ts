@@ -20,10 +20,6 @@ import { JwtModule } from '@nestjs/jwt';
       isGlobal: true,
       load: [appConfig, dbConfig, rabbitConfig],
     }),
-    JwtModule.register({
-      secret: 'secret-key', // Replace with your secret key
-      signOptions: { expiresIn: '1h' }, // Token expires in 1 hour
-    }),
     PrismaModule,
     RoleModule,
     UserModule,

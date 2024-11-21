@@ -5,7 +5,14 @@ import { RoleModule } from '../role/role.module';
 import { JwtModule } from '@nestjs/jwt';
 
 @Module({
-  imports: [RoleModule, JwtModule],
+  imports: [
+    JwtModule.register({
+      secret: 'secret-key',
+      signOptions: { expiresIn: '1h' },
+    }),
+    RoleModule,
+    JwtModule,
+  ],
   controllers: [UserController],
   providers: [UserService],
   exports: [UserService],
