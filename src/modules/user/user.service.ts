@@ -16,16 +16,14 @@ import { UserCreateDto, UserInterfaces, UserUpdateDto } from 'types/user/user';
 import { RoleService } from '../role/role.service';
 import * as bcrypt from 'bcrypt';
 import { UserLogInDto } from 'types/user/user/dto/log-in-user.dto';
-import { JwtService } from '@nestjs/jwt';
 import { CheckUserPermissionDto } from 'types/user/user/dto/check-permission.dto';
 
 @Injectable()
 export class UserService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly roleService: RoleService,
-    private readonly jwtService: JwtService
-  ) {}
+    private readonly roleService: RoleService
+  ) { }
 
   async logIn(data: UserLogInDto): Promise<UserInterfaces.Response> {
     const user = await this.prisma.user.findUnique({

@@ -12,7 +12,6 @@ import { RoleModule } from './modules/role/role.module';
 import { UserModule } from './modules/user/user.module';
 // import { PermissionModule } from './modules/permission/permission.module';
 import { RolePermissionModule } from './modules/role-permission/role-permission.module';
-import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [
@@ -34,4 +33,4 @@ import { JwtModule } from '@nestjs/jwt';
     },
   ],
 })
-export class AppModule {}
+export class AppModule { }
