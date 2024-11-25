@@ -104,9 +104,10 @@ export class UserService {
   async findAllByPagination(
     data: ListQueryDto
   ): Promise<UserInterfaces.ResponseWithPagination> {
-    const where: any = { status: DefaultStatus.ACTIVE };
+    const where: any = {};
+    console.log(data.search, 'SEARCH');
     if (data.search) {
-      where.name = {
+      where.fullName = {
         contains: data.search,
       };
     }
@@ -121,9 +122,7 @@ export class UserService {
     });
 
     const user = await this.prisma.user.findMany({
-      where: {
-        status: DefaultStatus.ACTIVE,
-      },
+      where,
       orderBy: { createdAt: 'desc' },
       take: pagination.take,
       skip: pagination.skip,
