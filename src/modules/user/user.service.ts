@@ -23,7 +23,7 @@ export class UserService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly roleService: RoleService
-  ) { }
+  ) {}
 
   async logIn(data: UserLogInDto): Promise<UserInterfaces.Response> {
     const user = await this.prisma.user.findUnique({
@@ -91,6 +91,7 @@ export class UserService {
   ): Promise<UserInterfaces.ResponseWithoutPagination> {
     const user = await this.prisma.user.findMany({
       orderBy: { createdAt: 'desc' },
+      include: { role: true },
     });
 
     return {
@@ -125,6 +126,7 @@ export class UserService {
       orderBy: { createdAt: 'desc' },
       take: pagination.take,
       skip: pagination.skip,
+      include: { role: true },
     });
 
     return {
@@ -140,6 +142,7 @@ export class UserService {
         id: data.id,
         status: DefaultStatus.ACTIVE,
       },
+      include: { role: true },
     });
 
     if (!user) {
