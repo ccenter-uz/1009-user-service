@@ -104,7 +104,6 @@ export class UserService {
     data: ListQueryDto
   ): Promise<UserInterfaces.ResponseWithPagination> {
     const where: any = {};
-    console.log(data.search, 'SEARCH');
     if (data.search) {
       where.fullName = {
         contains: data.search,
