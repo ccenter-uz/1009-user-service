@@ -87,23 +87,36 @@ export class UserService {
   }
 
   async findAll(
-    data: LanguageRequestDto
-  ): Promise<UserInterfaces.ResponseWithoutPagination> {
-    const user = await this.prisma.user.findMany({
-      orderBy: { createdAt: 'desc' },
-      include: { role: true },
-    });
-
-    return {
-      data: user,
-      totalDocs: user.length,
-    };
-  }
-
-  async findAllByPagination(
     data: ListQueryDto
   ): Promise<UserInterfaces.ResponseWithPagination> {
-    const where: any = {};
+    if (data.all) {
+      const user = await this.prisma.user.findMany({
+        orderBy: { createdAt: 'desc' },
+        where: {
+          ...(data.status !== 2
+            ? {
+                status: data.status,
+              }
+            : {}),
+        },
+
+        include: { role: true },
+      });
+
+      return {
+        data: user,
+        totalDocs: user.length,
+        totalPage: 1,
+      };
+    }
+
+    const where: any = {
+      ...(data.status !== 2
+        ? {
+            status: data.status,
+          }
+        : {}),
+    };
     if (data.search) {
       where.fullName = {
         contains: data.search,
