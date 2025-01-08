@@ -12,7 +12,9 @@ export class AllExceptionFilter implements ExceptionFilter {
   catch(exception: any, host: ArgumentsHost) {
     const contextType = host.getType<'rmq' | 'http'>();
     let code = exception?.response?.statusCode ?? 500;
-    let error = exception?.response?.message ?? 'Internal server error';
+    let error = exception?.response?.error ?? 'Internal server error';
+
+    console.log(exception, 'EXCEPTION');
 
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
@@ -30,6 +32,8 @@ export class AllExceptionFilter implements ExceptionFilter {
       code,
       error,
     };
+
+    console.log(body, 'BODY');
 
     if (contextType === 'http') {
       return response.status(code).json(body);
