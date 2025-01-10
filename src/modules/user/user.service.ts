@@ -174,7 +174,6 @@ export class UserService {
         id: data.id,
         status: DefaultStatus.ACTIVE,
       },
-      // include: {  role: true ,},
       select: {
         id: true,
         fullName: true,
@@ -191,7 +190,6 @@ export class UserService {
             createdAt: true,
             updatedAt: true,
             deletedAt: true,
-// huynuihjyui?
 
           },
         },
@@ -216,14 +214,14 @@ export class UserService {
       },
       include: { role: true },
     });
-
+    console.log(user);
+    
     if (data.roleId) {
       await this.roleService.findOne({ id: data.roleId });
     }
   
     if(!user || !(await bcrypt.compare(data.oldPassword, user.password))) {
-      throw new UnauthorizedException('Invalid credentials');
-
+      throw new UnauthorizedException('Incorrect old password');
     }
 
     return await this.prisma.user.update({
