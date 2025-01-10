@@ -12,7 +12,12 @@ import {
 } from 'types/global';
 import { PrismaService } from '../prisma/prisma.service';
 import { createPagination } from 'src/common/helper/pagination.helper';
-import { UserCreateDto, UserInterfaces, UserUpdateDto } from 'types/user/user';
+import {
+  GetMeDto,
+  UserCreateDto,
+  UserInterfaces,
+  UserUpdateDto,
+} from 'types/user/user';
 import { RoleService } from '../role/role.service';
 import * as bcrypt from 'bcrypt';
 import { UserLogInDto } from 'types/user/user/dto/log-in-user.dto';
@@ -154,6 +159,46 @@ export class UserService {
         status: DefaultStatus.ACTIVE,
       },
       include: { role: true },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User is not found');
+    }
+
+    return user;
+  }
+
+  async findMe(data: GetMeDto): Promise<UserInterfaces.Response> {
+    const user = await this.prisma.user.findFirst({
+      where: {
+        id: data.id,
+        status: DefaultStatus.ACTIVE,
+      },
+      // include: {  role: true ,},
+      select: {
+        id: true,
+        fullName: true,
+        phoneNumber: true,
+        roleId: true,
+        numericId: true,
+        status: true,
+
+        role: {
+          select: {
+            id: true,
+            name: true,
+            status: true,
+            createdAt: true,
+            updatedAt: true,
+            deletedAt: true,
+// huynuihjyui?
+
+          },
+        },
+        createdAt: true,
+        updatedAt: true,
+        deletedAt: true,
+      },
     });
 
     if (!user) {
