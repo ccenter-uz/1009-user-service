@@ -209,10 +209,21 @@ export class UserService {
   }
 
   async update(data: UserUpdateDto): Promise<UserInterfaces.Response> {
-    const user = await this.findOne({ id: data.id });
+    const user = await this.prisma.user.findFirst({
+      where: {
+        id: data.id,
+        status: DefaultStatus.ACTIVE,
+      },
+      include: { role: true },
+    });
 
     if (data.roleId) {
       await this.roleService.findOne({ id: data.roleId });
+    }
+  
+    if(!user || !(await bcrypt.compare(data.oldPassword, user.password))) {
+      throw new UnauthorizedException('Invalid credentials');
+
     }
 
     return await this.prisma.user.update({
@@ -222,7 +233,7 @@ export class UserService {
       data: {
         fullName: data.fullName,
         phoneNumber: data.phoneNumber, // add formatter
-        // password: await bcrypt.hash(data.password, 10),
+        password: await bcrypt.hash(data.newPassword, 10),
         roleId: data.roleId,
         numericId: data.numericId,
       },
