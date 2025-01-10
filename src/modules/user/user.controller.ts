@@ -8,7 +8,12 @@ import {
   ListQueryDto,
 } from 'types/global';
 import { UserService } from './user.service';
-import { UserCreateDto, UserInterfaces, UserUpdateDto } from 'types/user/user';
+import {
+  UserCreateDto,
+  UserInterfaces,
+  UserUpdateDto,
+  GetMeDto,
+} from 'types/user/user';
 import { UserLogInDto } from 'types/user/user/dto/log-in-user.dto';
 import { CheckUserPermissionDto } from 'types/user/user/dto/check-permission.dto';
 
@@ -46,6 +51,12 @@ export class UserController {
   @MessagePattern({ cmd: Commands.GET_BY_ID })
   findOne(@Payload() data: GetOneDto): Promise<UserInterfaces.Response> {
     return this.userService.findOne(data);
+  }
+
+  @Get('get-me-by-id')
+  @MessagePattern({ cmd: Commands.GET_ME_BY_ID })
+  findMe(@Payload() data: GetMeDto): Promise<UserInterfaces.Response> {
+    return this.userService.findMe(data);
   }
 
   @Put()

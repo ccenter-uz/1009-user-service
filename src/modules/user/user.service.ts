@@ -12,7 +12,12 @@ import {
 } from 'types/global';
 import { PrismaService } from '../prisma/prisma.service';
 import { createPagination } from 'src/common/helper/pagination.helper';
-import { UserCreateDto, UserInterfaces, UserUpdateDto } from 'types/user/user';
+import {
+  GetMeDto,
+  UserCreateDto,
+  UserInterfaces,
+  UserUpdateDto,
+} from 'types/user/user';
 import { RoleService } from '../role/role.service';
 import * as bcrypt from 'bcrypt';
 import { UserLogInDto } from 'types/user/user/dto/log-in-user.dto';
@@ -163,11 +168,60 @@ export class UserService {
     return user;
   }
 
-  async update(data: UserUpdateDto): Promise<UserInterfaces.Response> {
-    const user = await this.findOne({ id: data.id });
+  async findMe(data: GetMeDto): Promise<UserInterfaces.Response> {
+    const user = await this.prisma.user.findFirst({
+      where: {
+        id: data.id,
+        status: DefaultStatus.ACTIVE,
+      },
+      select: {
+        id: true,
+        fullName: true,
+        phoneNumber: true,
+        roleId: true,
+        numericId: true,
+        status: true,
 
+        role: {
+          select: {
+            id: true,
+            name: true,
+            status: true,
+            createdAt: true,
+            updatedAt: true,
+            deletedAt: true,
+
+          },
+        },
+        createdAt: true,
+        updatedAt: true,
+        deletedAt: true,
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User is not found');
+    }
+
+    return user;
+  }
+
+  async update(data: UserUpdateDto): Promise<UserInterfaces.Response> {
+    const user = await this.prisma.user.findFirst({
+      where: {
+        id: data.id,
+        status: DefaultStatus.ACTIVE,
+      },
+      include: { role: true },
+    });
+    console.log(user);
+    
     if (data.roleId) {
       await this.roleService.findOne({ id: data.roleId });
+    }
+  
+    if(!user || !(await bcrypt.compare(data.oldPassword, user.password))) {
+      throw new UnauthorizedException('Incorrect old password');
     }
 
     return await this.prisma.user.update({
@@ -177,7 +231,7 @@ export class UserService {
       data: {
         fullName: data.fullName,
         phoneNumber: data.phoneNumber, // add formatter
-        // password: await bcrypt.hash(data.password, 10),
+        password: await bcrypt.hash(data.newPassword, 10),
         roleId: data.roleId,
         numericId: data.numericId,
       },
