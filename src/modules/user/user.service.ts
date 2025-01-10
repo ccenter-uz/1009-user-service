@@ -27,7 +27,7 @@ export class UserService {
 
   async logIn(data: UserLogInDto): Promise<UserInterfaces.Response> {
     const user = await this.prisma.user.findUnique({
-      where: { phoneNumber: data.phoneNumber },
+      where: { phoneNumber: data.phoneNumber, status: DefaultStatus.ACTIVE },
       include: {
         role: {
           include: {
@@ -48,7 +48,7 @@ export class UserService {
     const { userId, roleId, method, path } = data;
 
     const user = await this.prisma.user.findUnique({
-      where: { id: userId },
+      where: { id: userId, status: DefaultStatus.ACTIVE },
       select: { roleId: true },
     });
 
