@@ -156,7 +156,6 @@ export class UserService {
     const user = await this.prisma.user.findFirst({
       where: {
         id: data.id,
-        status: DefaultStatus.ACTIVE,
       },
       include: { role: true },
     });
@@ -190,7 +189,6 @@ export class UserService {
             createdAt: true,
             updatedAt: true,
             deletedAt: true,
-
           },
         },
         createdAt: true,
@@ -215,12 +213,12 @@ export class UserService {
       include: { role: true },
     });
     console.log(user);
-    
+
     if (data.roleId) {
       await this.roleService.findOne({ id: data.roleId });
     }
-  
-    if(!user || !(await bcrypt.compare(data.oldPassword, user.password))) {
+
+    if (!user || !(await bcrypt.compare(data.oldPassword, user.password))) {
       throw new UnauthorizedException('Incorrect old password');
     }
 
