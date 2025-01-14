@@ -53,7 +53,7 @@ export class UserController {
     return this.userService.findOne(data);
   }
 
-  @Get('get-me-by-id')
+  @Get('get-me')
   @MessagePattern({ cmd: Commands.GET_ME_BY_ID })
   findMe(@Payload() data: GetMeDto): Promise<UserInterfaces.Response> {
     return this.userService.findMe(data);
