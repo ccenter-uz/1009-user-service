@@ -33,8 +33,6 @@ export class AllExceptionFilter implements ExceptionFilter {
       error,
     };
 
-    console.log(body, 'BODY');
-
     if (contextType === 'http') {
       return response.status(code).json(body);
     }
