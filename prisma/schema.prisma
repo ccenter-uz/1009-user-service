@@ -74,3 +74,17 @@ model RolePermission {
 
   @@map("role_permission")
 }
+
+model ApiLogs {
+  id        Int      @id @default(autoincrement())
+  userId    Int? // Nullable if no user is associated
+  orgId     Int? // Nullable if no organization is associated
+  method    String
+  url       String
+  request   String // Store request body as a JSON string
+  response  String // Store response body as a JSON string
+  headers   String // Store request headers as a JSON string
+  status    Int // HTTP status code
+  duration  Int // Request processing time in milliseconds
+  timestamp DateTime @default(now())
+}
