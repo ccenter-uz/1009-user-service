@@ -76,15 +76,18 @@ model RolePermission {
 }
 
 model ApiLogs {
-  id        Int      @id @default(autoincrement())
-  userId    Int? // Nullable if no user is associated
-  orgId     Int? // Nullable if no organization is associated
-  method    String
-  url       String
-  request   String // Store request body as a JSON string
-  response  String // Store response body as a JSON string
-  headers   String // Store request headers as a JSON string
-  status    Int // HTTP status code
-  duration  Int // Request processing time in milliseconds
-  timestamp DateTime @default(now())
+  id            Int      @id @default(autoincrement())
+  userId        Int      @map("user_id")
+  userNumericId String?  @map("user_numeric_id") @db.VarChar(15)
+  userFullName  String?  @map("user_full_name") @db.VarChar(300)
+  userRole      String?  @map("user_role") @db.VarChar(50)
+  method        String?  @db.VarChar(50)
+  path          String?  @db.VarChar(150)
+  request       String?
+  response      String?
+  status        Int?
+  duration      Int?     @db.SmallInt()
+  timestamp     DateTime @default(now())
+
+  @@map("api_logs")
 }
