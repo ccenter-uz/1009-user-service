@@ -13,6 +13,7 @@ import { UserModule } from './modules/user/user.module';
 // import { PermissionModule } from './modules/permission/permission.module';
 import { RolePermissionModule } from './modules/role-permission/role-permission.module';
 import { LoggingInterceptor } from './common/interceptor/logging.interceptor';
+import { MonitoringModule } from './modules/monitoring/monitoring.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { LoggingInterceptor } from './common/interceptor/logging.interceptor';
     UserModule,
     // PermissionModule,
     RolePermissionModule,
+    MonitoringModule,
   ],
   controllers: [],
   providers: [
