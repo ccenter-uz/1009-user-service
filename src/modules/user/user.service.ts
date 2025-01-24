@@ -225,6 +225,8 @@ export class UserService {
   }
 
   async updateMe(data: UserUpdateMeDto): Promise<UserInterfaces.Response> {
+    console.log(data);
+    
     const user = await this.prisma.user.findFirst({
       where: {
         id: data.id,
