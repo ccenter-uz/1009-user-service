@@ -22,6 +22,7 @@ import { RoleService } from '../role/role.service';
 import * as bcrypt from 'bcrypt';
 import { UserLogInDto } from 'types/user/user/dto/log-in-user.dto';
 import { CheckUserPermissionDto } from 'types/user/user/dto/check-permission.dto';
+import { generateNumber } from 'src/common/helper/generate-number.helper';
 
 @Injectable()
 export class UserService {
@@ -77,6 +78,11 @@ export class UserService {
     const role = await this.roleService.findOne({
       id: data.roleId,
     });
+    let numericId = data.numericId;
+
+    if (!numericId) {
+      numericId = generateNumber()?.toString();
+    }
 
     const user = await this.prisma.user.create({
       data: {
@@ -84,7 +90,7 @@ export class UserService {
         phoneNumber: data.phoneNumber, // add formatter
         password: await bcrypt.hash(data.password, 10),
         roleId: role.id,
-        numericId: data.numericId,
+        numericId: numericId,
       },
     });
 
@@ -226,7 +232,7 @@ export class UserService {
 
   async updateMe(data: UserUpdateMeDto): Promise<UserInterfaces.Response> {
     console.log(data);
-    
+
     const user = await this.prisma.user.findFirst({
       where: {
         id: data.id,
