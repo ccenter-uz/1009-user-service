@@ -1,14 +1,14 @@
 import { Controller, Delete, Get, Patch, Post, Put } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { UserServiceCommands as Commands } from 'types/user/user/commands';
-import {
-  DeleteDto,
-  GetOneDto,
-  LanguageRequestDto,
-  ListQueryDto,
-} from 'types/global';
+import { DeleteDto, GetOneDto, ListQueryDto } from 'types/global';
 import { UserService } from './user.service';
-import { UserCreateDto, UserInterfaces, UserUpdateDto } from 'types/user/user';
+import {
+  UserCreateDto,
+  UserInterfaces,
+  UserUpdateDto,
+  UserUpdateMeDto,
+} from 'types/user/user';
 import { UserLogInDto } from 'types/user/user/dto/log-in-user.dto';
 import { CheckUserPermissionDto } from 'types/user/user/dto/check-permission.dto';
 
@@ -46,6 +46,18 @@ export class UserController {
   @MessagePattern({ cmd: Commands.GET_BY_ID })
   findOne(@Payload() data: GetOneDto): Promise<UserInterfaces.Response> {
     return this.userService.findOne(data);
+  }
+
+  @Get('get-me')
+  @MessagePattern({ cmd: Commands.GET_ME_BY_ID })
+  findMe(@Payload() data: GetOneDto): Promise<UserInterfaces.Response> {
+    return this.userService.findMe(data);
+  }
+
+  @Put('update-me')
+  @MessagePattern({ cmd: Commands.UPDATE_ME_BY_ID })
+  updateMe(@Payload() data: UserUpdateMeDto): Promise<UserInterfaces.Response> {
+    return this.userService.updateMe(data);
   }
 
   @Put()
