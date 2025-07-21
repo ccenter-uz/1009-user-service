@@ -54,6 +54,12 @@ export class UserController {
     return this.userService.findMe(data);
   }
 
+  @Get('get-by-staff-number')
+  @MessagePattern({ cmd: Commands.GET_BY_STAFFNUMBER })
+  findByStaffNumber(@Payload() data: GetOneDto): Promise<UserInterfaces.Response> {
+    return this.userService.findByStaffNumber(data);
+  }
+
   @Put('update-me')
   @MessagePattern({ cmd: Commands.UPDATE_ME_BY_ID })
   updateMe(@Payload() data: UserUpdateMeDto): Promise<UserInterfaces.Response> {

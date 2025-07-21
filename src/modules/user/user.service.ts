@@ -193,6 +193,26 @@ export class UserService {
     return user;
   }
 
+  async findByStaffNumber(data: GetOneDto): Promise<UserInterfaces.Response> {
+    console.log(data, 'userdata');
+    
+    const user = await this.prisma.user.findFirst({
+      where: {
+        numericId: data.id.toString(),
+        status: DefaultStatus.ACTIVE,
+      },
+      include: { role: true },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User is not found');
+    }
+
+    delete user.password;
+
+    return user;
+  }
+
   async update(data: UserUpdateDto): Promise<UserInterfaces.Response> {
     const user = await this.prisma.user.findFirst({
       where: {
@@ -231,7 +251,6 @@ export class UserService {
   }
 
   async updateMe(data: UserUpdateMeDto): Promise<UserInterfaces.Response> {
-
     const user = await this.prisma.user.findFirst({
       where: {
         id: data.id,
