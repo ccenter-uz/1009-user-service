@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "users" ALTER COLUMN "sms_code" SET DATA TYPE INTEGER;
