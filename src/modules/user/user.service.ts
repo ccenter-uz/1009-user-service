@@ -1,4 +1,6 @@
 import {
+  HttpException,
+  HttpStatus,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -13,16 +15,19 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { createPagination } from 'src/common/helper/pagination.helper';
 import {
+  ResendSmsCodeDto,
   UserCreateDto,
   UserInterfaces,
   UserUpdateDto,
   UserUpdateMeDto,
+  VerifySmsCodeDto,
 } from 'types/user/user';
 import { RoleService } from '../role/role.service';
 import * as bcrypt from 'bcrypt';
 import { UserLogInDto } from 'types/user/user/dto/log-in-user.dto';
 import { CheckUserPermissionDto } from 'types/user/user/dto/check-permission.dto';
 import { generateNumber } from 'src/common/helper/generate-number.helper';
+import { secondsSinceGivenTime } from 'src/common/helper/seconds-since-given-time.helper';
 
 @Injectable()
 export class UserService {
@@ -87,7 +92,7 @@ export class UserService {
     const user = await this.prisma.user.create({
       data: {
         fullName: data.fullName,
-        phoneNumber: data.phoneNumber, // add formatter
+        phoneNumber: data.phoneNumber,
         password: await bcrypt.hash(data.password, 10),
         roleId: role.id,
         numericId: numericId,
@@ -95,6 +100,113 @@ export class UserService {
     });
 
     return user;
+  }
+
+  async createUser(
+    data: UserCreateDto
+  ): Promise<UserInterfaces.ResponseCreateUser> {
+    const role = await this.roleService.findOne({
+      id: data.roleId,
+    });
+    let numericId = data.numericId;
+
+    if (!numericId) {
+      numericId = generateNumber()?.toString();
+    }
+
+    const smsCode = await generateNumber();
+
+    const user = await this.prisma.user.create({
+      data: {
+        fullName: data.fullName,
+        phoneNumber: data.phoneNumber, // add formatter
+        password: await bcrypt.hash(data.password, 10),
+        roleId: role.id,
+        numericId: numericId,
+        smsCode: smsCode,
+        otpDuration: new Date(),
+        attempt: 1,
+        status: DefaultStatus.INACTIVE,
+      },
+    });
+
+    return {
+      smsCode: smsCode,
+      userId: user.id,
+    };
+  }
+
+  async verifySmsCode(
+    data: VerifySmsCodeDto
+  ): Promise<UserInterfaces.Response> {
+    const finduser = await this.prisma.user.findFirst({
+      where: {
+        id: data.userId,
+      },
+    });
+
+    if (!finduser) {
+      throw new NotFoundException('User not found');
+    }
+
+    const differenceSeconds = await secondsSinceGivenTime(finduser.otpDuration);
+
+    if (differenceSeconds > 60) {
+      throw new HttpException('Time is over', HttpStatus.BAD_REQUEST);
+    }
+
+    if (finduser.smsCode != +data.smsCode) {
+      const updated = await this.prisma.user.update({
+        where: { id: finduser.id },
+        data: {
+          attempt: finduser.attempt + 1,
+        },
+      });
+      throw new HttpException('Code is not correct', HttpStatus.BAD_REQUEST);
+    }
+
+    const updated = await this.prisma.user.update({
+      where: { id: finduser.id },
+      data: {
+        attempt: 0,
+        status: DefaultStatus.ACTIVE,
+      },
+    });
+
+    return finduser;
+  }
+  async resendSmsCode(
+    data: ResendSmsCodeDto
+  ): Promise<UserInterfaces.ResponseCreateUser> {
+    const finduser = await this.prisma.user.findFirst({
+      where: {
+        id: data.userId,
+      },
+    });
+
+    if (!finduser) {
+      throw new HttpException('Not found user', HttpStatus.NOT_FOUND);
+    }
+
+    if (finduser.attempt > 3) {
+      throw new HttpException('attempt is over', HttpStatus.BAD_REQUEST);
+    }
+    const smsCode = await generateNumber();
+    const updated = await this.prisma.user.update({
+      where: {
+        id: finduser.id,
+      },
+      data: {
+        smsCode: smsCode,
+        attempt: finduser.attempt + 1,
+        otpDuration: new Date(),
+      },
+    });
+
+    return {
+      userId: finduser.id,
+      smsCode,
+    };
   }
 
   async findAll(
@@ -194,8 +306,6 @@ export class UserService {
   }
 
   async findByStaffNumber(data: GetOneDto): Promise<UserInterfaces.Response> {
-    console.log(data, 'userdata');
-    
     const user = await this.prisma.user.findFirst({
       where: {
         numericId: data.id.toString(),
