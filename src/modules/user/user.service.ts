@@ -6,6 +6,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import {
+  CreatedByEnum,
   DefaultStatus,
   DeleteDto,
   GetOneDto,
@@ -15,6 +16,7 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { createPagination } from 'src/common/helper/pagination.helper';
 import {
+  CreateBusinessUserDto,
   ResendSmsCodeDto,
   UserCreateDto,
   UserInterfaces,
@@ -28,6 +30,7 @@ import { UserLogInDto } from 'types/user/user/dto/log-in-user.dto';
 import { CheckUserPermissionDto } from 'types/user/user/dto/check-permission.dto';
 import { generateNumber } from 'src/common/helper/generate-number.helper';
 import { secondsSinceGivenTime } from 'src/common/helper/seconds-since-given-time.helper';
+import { BusinessUserLogInDto } from 'types/user/user/dto/log-in-business-user.dto';
 
 @Injectable()
 export class UserService {
@@ -37,7 +40,7 @@ export class UserService {
   ) {}
 
   async logIn(data: UserLogInDto): Promise<UserInterfaces.Response> {
-    const user = await this.prisma.user.findUnique({
+    const user = await this.prisma.user.findFirst({
       where: { phoneNumber: data.phoneNumber, status: DefaultStatus.ACTIVE },
       include: {
         role: {
@@ -53,6 +56,66 @@ export class UserService {
     }
 
     return user;
+  }
+
+  async logInBusiness(
+    data: BusinessUserLogInDto
+  ): Promise<UserInterfaces.ResponseLoginBusinessUser> {
+    const user = await this.prisma.user.findFirst({
+      where: {
+        phoneNumber: data.phoneNumber,
+        status: DefaultStatus.ACTIVE,
+        roleId: 6,
+      },
+      include: {
+        role: {
+          include: {
+            RolePermission: true,
+          },
+        },
+      },
+    });
+
+    if (user) {
+      const smsCode = await generateNumber();
+      const updated = await this.prisma.user.update({
+        where: {
+          id: user.id,
+        },
+        data: {
+          smsCode: smsCode,
+          attempt: 1,
+          otpDuration: new Date(),
+        },
+      });
+
+      return {
+        userId: user.id,
+        smsCode,
+      };
+    } else {
+      const role = await this.roleService.findOne({
+        id: 6,
+      });
+      const smsCode = await generateNumber();
+      const numericId = generateNumber()?.toString();
+      const userCreate = await this.prisma.user.create({
+        data: {
+          roleId: role.id,
+          status: DefaultStatus.ACTIVE,
+          phoneNumber: data.phoneNumber,
+          numericId: numericId,
+          smsCode: smsCode,
+          attempt: 1,
+          otpDuration: new Date(),
+        },
+      });
+
+      return {
+        userId: userCreate.id,
+        smsCode,
+      };
+    }
   }
 
   async checkPermission(data: CheckUserPermissionDto): Promise<boolean> {
@@ -88,12 +151,36 @@ export class UserService {
     if (!numericId) {
       numericId = generateNumber()?.toString();
     }
-
     const user = await this.prisma.user.create({
       data: {
         fullName: data.fullName,
         phoneNumber: data.phoneNumber,
         password: await bcrypt.hash(data.password, 10),
+        roleId: role.id,
+        numericId: numericId,
+      },
+    });
+
+    return user;
+  }
+
+  async createBusinessUser(
+    data: CreateBusinessUserDto
+  ): Promise<UserInterfaces.Response> {
+    const findUser = await this.findWithNumber(data.phoneNumber);
+    console.log('findUser', findUser);
+    
+    if (findUser) {
+      throw new HttpException('User already exist', HttpStatus.BAD_REQUEST);
+    }
+    const role = await this.roleService.findOne({
+      id: 6,
+    });
+    let numericId = generateNumber()?.toString();
+
+    const user = await this.prisma.user.create({
+      data: {
+        phoneNumber: data.phoneNumber,
         roleId: role.id,
         numericId: numericId,
       },
@@ -142,6 +229,9 @@ export class UserService {
     const finduser = await this.prisma.user.findFirst({
       where: {
         id: data.userId,
+      },
+      include: {
+        role: true,
       },
     });
 
@@ -319,6 +409,21 @@ export class UserService {
     }
 
     delete user.password;
+
+    return user;
+  }
+
+  async findWithNumber(number: string): Promise<UserInterfaces.Response> {
+    const user = await this.prisma.user.findFirst({
+      where: {
+        phoneNumber: number,
+        status: DefaultStatus.ACTIVE,
+        role: {
+          name: CreatedByEnum.Business,
+        },
+      },
+      include: { role: true },
+    });
 
     return user;
   }

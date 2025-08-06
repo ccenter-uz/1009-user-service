@@ -4,6 +4,7 @@ import { UserServiceCommands as Commands } from 'types/user/user/commands';
 import { DeleteDto, GetOneDto, ListQueryDto } from 'types/global';
 import { UserService } from './user.service';
 import {
+  CreateBusinessUserDto,
   ResendSmsCodeDto,
   UserCreateDto,
   UserInterfaces,
@@ -13,6 +14,7 @@ import {
 } from 'types/user/user';
 import { UserLogInDto } from 'types/user/user/dto/log-in-user.dto';
 import { CheckUserPermissionDto } from 'types/user/user/dto/check-permission.dto';
+import { BusinessUserLogInDto } from 'types/user/user/dto/log-in-business-user.dto';
 
 @Controller('user')
 export class UserController {
@@ -22,6 +24,14 @@ export class UserController {
   @MessagePattern({ cmd: Commands.LOG_IN })
   logIn(@Payload() data: UserLogInDto): Promise<UserInterfaces.Response> {
     return this.userService.logIn(data);
+  }
+
+  @Post('business/log-in')
+  @MessagePattern({ cmd: Commands.LOG_IN_BUSINESS })
+  logInBusiness(
+    @Payload() data: BusinessUserLogInDto
+  ): Promise<UserInterfaces.ResponseLoginBusinessUser> {
+    return this.userService.logInBusiness(data);
   }
 
   @Get('check-permission')
@@ -37,11 +47,11 @@ export class UserController {
   }
 
   @Post()
-  @MessagePattern({ cmd: Commands.CREATE_CLIENT })
-  createUser(
-    @Payload() data: UserCreateDto
+  @MessagePattern({ cmd: Commands.CREATE_BUSINESS_USER })
+  createBusinessUser(
+    @Payload() data: CreateBusinessUserDto
   ): Promise<UserInterfaces.ResponseCreateUser> {
-    return this.userService.createUser(data);
+    return this.userService.createBusinessUser(data);
   }
 
   @Post()
