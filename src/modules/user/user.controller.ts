@@ -4,10 +4,12 @@ import { UserServiceCommands as Commands } from 'types/user/user/commands';
 import { DeleteDto, GetOneDto, ListQueryDto } from 'types/global';
 import { UserService } from './user.service';
 import {
+  ResendSmsCodeDto,
   UserCreateDto,
   UserInterfaces,
   UserUpdateDto,
   UserUpdateMeDto,
+  VerifySmsCodeDto,
 } from 'types/user/user';
 import { UserLogInDto } from 'types/user/user/dto/log-in-user.dto';
 import { CheckUserPermissionDto } from 'types/user/user/dto/check-permission.dto';
@@ -34,6 +36,30 @@ export class UserController {
     return this.userService.create(data);
   }
 
+  @Post()
+  @MessagePattern({ cmd: Commands.CREATE_CLIENT })
+  createUser(
+    @Payload() data: UserCreateDto
+  ): Promise<UserInterfaces.ResponseCreateUser> {
+    return this.userService.createUser(data);
+  }
+
+  @Post()
+  @MessagePattern({ cmd: Commands.VERIFY_SMS_CODE })
+  verifySmsCode(
+    @Payload() data: VerifySmsCodeDto
+  ): Promise<UserInterfaces.Response> {
+    return this.userService.verifySmsCode(data);
+  }
+
+  @Post()
+  @MessagePattern({ cmd: Commands.RESEND_SMS_CODE })
+  resendSmsCode(
+    @Payload() data: ResendSmsCodeDto
+  ): Promise<UserInterfaces.ResponseCreateUser> {
+    return this.userService.resendSmsCode(data);
+  }
+
   @Get('all')
   @MessagePattern({ cmd: Commands.GET_ALL_LIST })
   findAll(
@@ -56,7 +82,9 @@ export class UserController {
 
   @Get('get-by-staff-number')
   @MessagePattern({ cmd: Commands.GET_BY_STAFFNUMBER })
-  findByStaffNumber(@Payload() data: GetOneDto): Promise<UserInterfaces.Response> {
+  findByStaffNumber(
+    @Payload() data: GetOneDto
+  ): Promise<UserInterfaces.Response> {
     return this.userService.findByStaffNumber(data);
   }
 
