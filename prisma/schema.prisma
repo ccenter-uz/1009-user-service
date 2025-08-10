@@ -32,6 +32,7 @@ model User {
   fullName        String?   @map("full_name") @db.VarChar(300)
   phoneNumber     String    @map("phone_number") @db.VarChar(13)
   password        String?
+  email           String?   @map("email") @db.VarChar()
   roleId          Int       @map("role_id")
   numericId       String?   @unique @map("numeric_id") @db.VarChar(15)
   smsCode         Int?      @map("sms_code") 

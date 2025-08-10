@@ -168,8 +168,7 @@ export class UserService {
     data: CreateBusinessUserDto
   ): Promise<UserInterfaces.Response> {
     const findUser = await this.findWithNumber(data.phoneNumber);
-    console.log('findUser', findUser);
-    
+
     if (findUser) {
       throw new HttpException('User already exist', HttpStatus.BAD_REQUEST);
     }
@@ -181,6 +180,7 @@ export class UserService {
     const user = await this.prisma.user.create({
       data: {
         phoneNumber: data.phoneNumber,
+        email: data.email,
         roleId: role.id,
         numericId: numericId,
       },
@@ -471,30 +471,44 @@ export class UserService {
         id: data.id,
         status: DefaultStatus.ACTIVE,
       },
+      include: { role: true },
     });
 
-    if (
-      data.oldPassword &&
-      data.newPassword &&
-      (!user || !(await bcrypt.compare(data.oldPassword, user.password)))
-    ) {
-      throw new UnauthorizedException('Incorrect old password');
+    if (user.role.name == CreatedByEnum.Business) {
+      return await this.prisma.user.update({
+        where: {
+          id: user.id,
+          status: DefaultStatus.ACTIVE,
+        },
+        data: {
+          phoneNumber: data.phoneNumber,
+          email: data.email,
+        },
+      });
+    } else {
+      if (
+        data.oldPassword &&
+        data.newPassword &&
+        (!user || !(await bcrypt.compare(data.oldPassword, user.password)))
+      ) {
+        throw new UnauthorizedException('Incorrect old password');
+      }
+
+      return await this.prisma.user.update({
+        where: {
+          id: user.id,
+          status: DefaultStatus.ACTIVE,
+        },
+        data: {
+          fullName: data.fullName,
+          phoneNumber: data.phoneNumber,
+          password:
+            data.oldPassword && data.newPassword
+              ? await bcrypt.hash(data.newPassword, 10)
+              : user.password,
+        },
+      });
     }
-
-    return await this.prisma.user.update({
-      where: {
-        id: user.id,
-        status: DefaultStatus.ACTIVE,
-      },
-      data: {
-        fullName: data.fullName,
-        phoneNumber: data.phoneNumber,
-        password:
-          data.oldPassword && data.newPassword
-            ? await bcrypt.hash(data.newPassword, 10)
-            : user.password,
-      },
-    });
   }
 
   async remove(data: DeleteDto): Promise<UserInterfaces.Response> {
