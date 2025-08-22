@@ -15,6 +15,7 @@ import {
 import { UserLogInDto } from 'types/user/user/dto/log-in-user.dto';
 import { CheckUserPermissionDto } from 'types/user/user/dto/check-permission.dto';
 import { BusinessUserLogInDto } from 'types/user/user/dto/log-in-business-user.dto';
+import { ClientCreateDto } from 'types/user/user/dto/create-client.dto';
 
 @Controller('user')
 export class UserController {
@@ -24,6 +25,12 @@ export class UserController {
   @MessagePattern({ cmd: Commands.LOG_IN })
   logIn(@Payload() data: UserLogInDto): Promise<UserInterfaces.Response> {
     return this.userService.logIn(data);
+  }
+
+  @Post('log-in')
+  @MessagePattern({ cmd: Commands.LOG_IN_CLIENT })
+  logInClient(@Payload() data: UserLogInDto): Promise<UserInterfaces.VerifySmsCodeRequest> {
+    return this.userService.logInClient(data);
   }
 
   @Post('business/log-in')
@@ -44,6 +51,14 @@ export class UserController {
   @MessagePattern({ cmd: Commands.CREATE })
   create(@Payload() data: UserCreateDto): Promise<UserInterfaces.Response> {
     return this.userService.create(data);
+  }
+
+  @Post()
+  @MessagePattern({ cmd: Commands.CREATE_CLIENT })
+  createClient(
+    @Payload() data: ClientCreateDto
+  ): Promise<UserInterfaces.ResponseCreateUser> {
+    return this.userService.createUser(data);
   }
 
   @Post()

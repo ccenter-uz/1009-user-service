@@ -31,6 +31,7 @@ import { CheckUserPermissionDto } from 'types/user/user/dto/check-permission.dto
 import { generateNumber } from 'src/common/helper/generate-number.helper';
 import { secondsSinceGivenTime } from 'src/common/helper/seconds-since-given-time.helper';
 import { BusinessUserLogInDto } from 'types/user/user/dto/log-in-business-user.dto';
+import { ClientCreateDto } from 'types/user/user/dto/create-client.dto';
 
 @Injectable()
 export class UserService {
@@ -56,6 +57,40 @@ export class UserService {
     }
 
     return user;
+  }
+
+  async logInClient(data: UserLogInDto): Promise<UserInterfaces.VerifySmsCodeRequest> {
+    const user = await this.prisma.user.findFirst({
+      where: { phoneNumber: data.phoneNumber, status: DefaultStatus.ACTIVE },
+      include: {
+        role: {
+          include: {
+            RolePermission: true,
+          },
+        },
+      },
+    });
+
+    if (!user || !(await bcrypt.compare(data.password, user.password))) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    const smsCode = await generateNumber();
+    const updated = await this.prisma.user.update({
+      where: {
+        id: user.id,
+      },
+      data: {
+        smsCode: smsCode,
+        attempt: 1,
+        otpDuration: new Date(),
+      },
+    });
+
+    return {
+      userId: user.id,
+      smsCode,
+    };
   }
 
   async logInBusiness(
@@ -190,10 +225,10 @@ export class UserService {
   }
 
   async createUser(
-    data: UserCreateDto
+    data: ClientCreateDto
   ): Promise<UserInterfaces.ResponseCreateUser> {
     const role = await this.roleService.findOne({
-      id: data.roleId,
+      id: 1,
     });
     let numericId = data.numericId;
 
