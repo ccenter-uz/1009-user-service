@@ -59,40 +59,6 @@ export class UserService {
     return user;
   }
 
-  async logInClient(data: UserLogInDto): Promise<UserInterfaces.VerifySmsCodeRequest> {
-    const user = await this.prisma.user.findFirst({
-      where: { phoneNumber: data.phoneNumber, status: DefaultStatus.ACTIVE },
-      include: {
-        role: {
-          include: {
-            RolePermission: true,
-          },
-        },
-      },
-    });
-
-    if (!user || !(await bcrypt.compare(data.password, user.password))) {
-      throw new UnauthorizedException('Invalid credentials');
-    }
-
-    const smsCode = await generateNumber();
-    const updated = await this.prisma.user.update({
-      where: {
-        id: user.id,
-      },
-      data: {
-        smsCode: smsCode,
-        attempt: 1,
-        otpDuration: new Date(),
-      },
-    });
-
-    return {
-      userId: user.id,
-      smsCode,
-    };
-  }
-
   async logInBusiness(
     data: BusinessUserLogInDto
   ): Promise<UserInterfaces.ResponseLoginBusinessUser> {
@@ -516,7 +482,7 @@ export class UserService {
           status: DefaultStatus.ACTIVE,
         },
         data: {
-          phoneNumber: data.phoneNumber,
+          // phoneNumber: data.phoneNumber,
           email: data.email,
         },
       });
