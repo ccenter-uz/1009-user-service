@@ -9,6 +9,7 @@ import {
   UserCreateDto,
   UserInterfaces,
   UserUpdateDto,
+  UserUpdateMeBusinessDto,
   UserUpdateMeDto,
   VerifySmsCodeDto,
 } from 'types/user/user';
@@ -25,12 +26,6 @@ export class UserController {
   @MessagePattern({ cmd: Commands.LOG_IN })
   logIn(@Payload() data: UserLogInDto): Promise<UserInterfaces.Response> {
     return this.userService.logIn(data);
-  }
-
-  @Post('log-in')
-  @MessagePattern({ cmd: Commands.LOG_IN_CLIENT })
-  logInClient(@Payload() data: UserLogInDto): Promise<UserInterfaces.VerifySmsCodeRequest> {
-    return this.userService.logInClient(data);
   }
 
   @Post('business/log-in')
@@ -116,6 +111,14 @@ export class UserController {
   @Put('update-me')
   @MessagePattern({ cmd: Commands.UPDATE_ME_BY_ID })
   updateMe(@Payload() data: UserUpdateMeDto): Promise<UserInterfaces.Response> {
+    return this.userService.updateMe(data);
+  }
+
+  @Put('update-me')
+  @MessagePattern({ cmd: Commands.UPDATE_ME_BUSINESS_BY_ID })
+  updateMeBusiness(
+    @Payload() data: UserUpdateMeBusinessDto
+  ): Promise<UserInterfaces.Response> {
     return this.userService.updateMe(data);
   }
 
