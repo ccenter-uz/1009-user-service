@@ -52,8 +52,12 @@ export class UserService {
       },
     });
 
-    if (!user || !(await bcrypt.compare(data.password, user.password))) {
-      throw new UnauthorizedException('Invalid credentials');
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    if (!(await bcrypt.compare(data.password, user.password))) {
+      throw new UnauthorizedException('Invalid password');
     }
 
     return user;
@@ -77,46 +81,26 @@ export class UserService {
       },
     });
 
-    if (user) {
-      const smsCode = await generateNumber();
-      const updated = await this.prisma.user.update({
-        where: {
-          id: user.id,
-        },
-        data: {
-          smsCode: smsCode,
-          attempt: 1,
-          otpDuration: new Date(),
-        },
-      });
-
-      return {
-        userId: user.id,
-        smsCode,
-      };
-    } else {
-      const role = await this.roleService.findOne({
-        id: 6,
-      });
-      const smsCode = await generateNumber();
-      const numericId = generateNumber()?.toString();
-      const userCreate = await this.prisma.user.create({
-        data: {
-          roleId: role.id,
-          status: DefaultStatus.ACTIVE,
-          phoneNumber: data.phoneNumber,
-          numericId: numericId,
-          smsCode: smsCode,
-          attempt: 1,
-          otpDuration: new Date(),
-        },
-      });
-
-      return {
-        userId: userCreate.id,
-        smsCode,
-      };
+    if (!user) {
+      throw new NotFoundException('User not found');
     }
+
+    const smsCode = await generateNumber();
+    const updated = await this.prisma.user.update({
+      where: {
+        id: user.id,
+      },
+      data: {
+        smsCode: smsCode,
+        attempt: 1,
+        otpDuration: new Date(),
+      },
+    });
+
+    return {
+      userId: user.id,
+      smsCode,
+    };
   }
 
   async checkPermission(data: CheckUserPermissionDto): Promise<boolean> {
