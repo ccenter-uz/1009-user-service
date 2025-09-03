@@ -12,6 +12,7 @@ import {
   GetOneDto,
   LanguageRequestDto,
   ListQueryDto,
+  Roles,
 } from 'types/global';
 import { PrismaService } from '../prisma/prisma.service';
 import { createPagination } from 'src/common/helper/pagination.helper';
@@ -42,7 +43,15 @@ export class UserService {
 
   async logIn(data: UserLogInDto): Promise<UserInterfaces.Response> {
     const user = await this.prisma.user.findFirst({
-      where: { phoneNumber: data.phoneNumber, status: DefaultStatus.ACTIVE },
+      where: {
+        phoneNumber: data.phoneNumber,
+        status: DefaultStatus.ACTIVE,
+        role: {
+          NOT: {
+            name: Roles.BUSINESS,
+          },
+        },
+      },
       include: {
         role: {
           include: {
@@ -55,6 +64,7 @@ export class UserService {
     if (!user) {
       throw new NotFoundException('User not found');
     }
+    console.log(user);
 
     if (!(await bcrypt.compare(data.password, user.password))) {
       throw new UnauthorizedException('Invalid password');
