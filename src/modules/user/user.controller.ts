@@ -11,6 +11,7 @@ import {
   UserUpdateDto,
   UserUpdateMeBusinessDto,
   UserUpdateMeDto,
+  UserUpdateSmsCodeDto,
   VerifySmsCodeDto,
 } from 'types/user/user';
 import { UserLogInDto } from 'types/user/user/dto/log-in-user.dto';
@@ -126,6 +127,14 @@ export class UserController {
   @MessagePattern({ cmd: Commands.UPDATE })
   update(@Payload() data: UserUpdateDto): Promise<UserInterfaces.Response> {
     return this.userService.update(data);
+  }
+
+  @Put()
+  @MessagePattern({ cmd: Commands.UPDATE_SMS_CODE })
+  updateSmsCode(
+    @Payload() data: UserUpdateSmsCodeDto
+  ): Promise<UserInterfaces.Response> {
+    return this.userService.updateSmsCode(data);
   }
 
   @Delete()
