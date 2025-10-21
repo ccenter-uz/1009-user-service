@@ -467,6 +467,7 @@ export class UserService {
         },
         data: {
           // phoneNumber: data.phoneNumber,
+          language: data.language,
           email: data.email,
         },
       });
