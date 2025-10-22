@@ -38,6 +38,7 @@ model User {
   smsCode         Int?      @map("sms_code") 
   attempt         Int?      @map("attempt")  @db.SmallInt()
   otpDuration     DateTime? @map("otp_duration")
+  language        String?   @db.VarChar(5) @default("ru")
   status          Int       @default(1)     @db.SmallInt()
   createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamp
   updatedAt       DateTime? @updatedAt @map("updated_at")

@@ -23,6 +23,7 @@ import {
   UserInterfaces,
   UserUpdateDto,
   UserUpdateMeDto,
+  UserUpdateSmsCodeDto,
   VerifySmsCodeDto,
 } from 'types/user/user';
 import { RoleService } from '../role/role.service';
@@ -459,6 +460,26 @@ export class UserService {
     });
   }
 
+  async updateSmsCode(
+    data: UserUpdateSmsCodeDto
+  ): Promise<UserInterfaces.Response> {
+    const user = await this.prisma.user.findFirst({
+      where: {
+        id: data.userId,
+      },
+      include: { role: true },
+    });
+
+    return await this.prisma.user.update({
+      where: {
+        id: user.id,
+      },
+      data: {
+        smsCode: data.smsCode,
+      },
+    });
+  }
+
   async updateMe(data: UserUpdateMeDto): Promise<UserInterfaces.Response> {
     const user = await this.prisma.user.findFirst({
       where: {
@@ -476,6 +497,7 @@ export class UserService {
         },
         data: {
           // phoneNumber: data.phoneNumber,
+          language: data.language,
           email: data.email,
         },
       });
